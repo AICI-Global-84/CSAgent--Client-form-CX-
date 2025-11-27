@@ -63,6 +63,13 @@ const chatScript: ChatStep[] = [
 
   // Thông tin công ty & liên hệ
   {
+    id: "contact_info_transition",
+    type: "assistant",
+    message:
+      "Đầu tiên, cho mình xin một vài thông tin cơ bản về công ty và cách liên hệ với bạn nhé.",
+    field: "contact_info_transition",
+  },
+  {
     id: "company_name_prompt",
     type: "assistant",
     message: "Tên công ty của bạn là gì?",
@@ -530,9 +537,22 @@ export function ChatbotModal({ isOpen, onClose }: ChatbotModalProps) {
     }, 100);
   };
 
+  // Chỉ ẩn modal, không reset state
+  const handleBackdropClick = () => {
+    onClose();
+  };
+
+  // Reset state và đóng modal khi nhấn nút X
   const handleClose = () => {
     hasStarted.current = false;
     isProcessing.current = false;
+    setMessages([]);
+    setCurrentStepIndex(0);
+    setIsTyping(false);
+    setIsComplete(false);
+    setCollectedData({});
+    setShowInput(false);
+    setCurrentInputStep(0);
     onClose();
   };
 
@@ -554,7 +574,7 @@ export function ChatbotModal({ isOpen, onClose }: ChatbotModalProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={handleClose}
+            onClick={handleBackdropClick}
             className="fixed inset-0 bg-background/60 backdrop-blur-sm z-40"
             data-testid="chatbot-backdrop"
           />
@@ -565,22 +585,26 @@ export function ChatbotModal({ isOpen, onClose }: ChatbotModalProps) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className="fixed inset-4 md:inset-auto md:bottom-6 md:right-6 md:top-auto md:left-auto md:w-full md:max-w-lg md:h-[85vh] md:max-h-[600px] z-50 flex flex-col bg-background border border-border rounded-2xl shadow-2xl overflow-hidden"
+            className="fixed inset-4 md:inset-auto md:bottom-6 md:right-6 md:top-auto md:left-auto md:w-full md:max-w-lg md:h-[85vh] md:max-h-[600px] z-50 flex flex-col bg-background rounded-2xl shadow-2xl overflow-hidden"
+            style={{ border: '2px solid transparent', backgroundClip: 'padding-box', boxShadow: '0 0 0 2px rgba(72, 70, 157, 0.3), 0 25px 50px -12px rgba(0, 0, 0, 0.25)' }}
             data-testid="chatbot-modal"
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-card">
+            <div 
+              className="flex items-center justify-between px-4 py-3 text-white"
+              style={{ background: 'linear-gradient(to right, #48469d, #633e91, #c62b94)' }}
+            >
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
+                <div className="w-10 h-10 rounded-full bg-white overflow-hidden">
                   <img
-                    src="/AICI-2.png"
+                    src="/AICI-square.png"
                     alt="AICI Sales Agent"
-                    className="w-10 h-10 object-contain"
+                    className="w-full h-full object-cover"
                   />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-sm">AICI Sales Agent</h3>
-                  <p className="text-xs text-muted-foreground">
+                  <h3 className="font-semibold text-sm text-white">AICI Sales Agent</h3>
+                  <p className="text-xs text-white/80">
                     Tư vấn báo giá
                   </p>
                 </div>
@@ -589,6 +613,7 @@ export function ChatbotModal({ isOpen, onClose }: ChatbotModalProps) {
                 variant="ghost"
                 size="icon"
                 onClick={handleClose}
+                className="text-white hover:bg-white/20"
                 data-testid="button-close-chatbot"
               >
                 <X className="w-5 h-5" />
